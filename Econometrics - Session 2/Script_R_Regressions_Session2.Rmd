@@ -104,7 +104,6 @@ Let's discuss which variables should enter the model. [Open discussion]
 model1 <- lm(hourly_wage ~ hh_size + work_hrs_week + occup_code, data = atus)
 
 summary(model1)
-
 ```
 
 Does the model make sense? Are the signs and significance levels as you expected? Interpret the coefficients.
