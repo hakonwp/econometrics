@@ -1,0 +1,174 @@
+---
+title: "Econometrics Session2 -- R Regressions"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+Now we are trying to get ready for running regressions in R and for collecting nice output from the regressions. 
+
+
+First, let's load (and potentially install) some packages.
+
+```{r}
+#install.packages("stargazer")
+#install.packages("dplyr")
+#install.packages("GGally")
+#install.packages("ggplot2")
+library(stargazer)
+library(dplyr)
+library(GGally)
+library(ggplot2)
+
+```
+
+
+
+
+Next, we load data from the American Time Use Survey.
+
+```{r}
+# we want to read in the dataset "atus.csv", where all string variables are automatically transformed to factor variables
+atus <- read.csv("atus.csv", stringsAsFactors = TRUE)
+```
+
+Here is a description of the variables in the data set: 
+
+- `tuyear` survey year
+- `occup_code` occupation code where individual works
+- `ind_code` industry code where individual works
+- `labor_status` labor force status 
+- `ptft` whether the respondent works part-time or full-time 
+- `work_class` class of work 
+- `hourly_wage` hourly earnings at main job 
+- `work_hrs_week` number of hours worked per week 
+- `mult_jobs` had more than 1 jobs in 7 days prior to interview 
+- `partner_hh` presence of respondent's spouse/unmarried partner in the household 
+- `hh_size` number of people living in household 
+- `hh_child` presence of household children aged < 18 
+
+
+
+We would like to describe the variables that determine the hourly wage of an individual. To do so, we follow the 6 steps from class.
+
+1. Look at the data
+
+```{r}
+#View(atus)
+```
+
+Anything that looks weird?
+
+2. Summary statistics
+
+```{r}
+summary(atus)
+```
+
+Do you observe something strange?
+
+
+Answer: Several Variables are not numeric. 
+```{r}
+str(atus)
+```
+
+
+```{r}
+levels(atus$occup_code)
+levels(atus$ind_code)
+levels(atus$partner_hh)
+
+```
+
+
+
+
+3. Scatterplots and 4. Correlations
+
+
+```{r}
+ggpairs(atus[,c("hourly_wage", "work_hrs_week", "hh_size")])
+```
+
+5. Model
+
+Let's discuss which variables should enter the model. [Open discussion]
+
+
+6. Estimate and Assess Model
+
+[Use variables that you determined in the discussion.]
+```{r}
+model1 <- lm(hourly_wage ~ hh_size + work_hrs_week + occup_code, data = atus)
+
+summary(model1)
+
+```
+
+Does the model make sense? Are the signs and significance levels as you expected? Interpret the coefficients.
+
+Look at the adjusted R2. 
+
+
+Now let's learn about a packages that simplifies the comparison of different models and helps to produce nice regression output.
+
+```{r}
+
+# for summary statistics 
+stargazer(atus, type = 'text', digits = 1)
+
+#for regression output
+stargazer(model1, type = 'text')
+
+```
+
+
+
+You can experiment with different model specifications. Does the R2 change? Do the coefficients change? What is your preferred model specification? 
+
+
+```{r}
+model2 <- lm(hourly_wage ~ hh_size + work_hrs_week + ptft , data = atus)
+model3 <- lm(hourly_wage ~ hh_size + work_hrs_week + ptft + occup_code, data = atus)
+stargazer(model1, model2, model3, type = 'text')
+
+```
+
+
+
+
+# Regression formulas:
+
+Let's learn about additional options how to specify regression models. 
+
+- `outcome ~ independent_variable1 + independent_variable2`
+- factor variables are automatically turned into dummies `y ~ x + factor(z)`  (We have seen this with the `occup_code`)
+- interactions: `y ~ x*z` 
+- only interactions (not individual): `y ~ x:z`
+- full interaction sets: `y ~ (x1 + x2 + x3)^2`
+- can use functions: `ln(y) ~ x` 
+- Use `I()` if you want to do calculations with variables first: `I(y == 1) ~ I(x^2)`
+- With many `x` variables can abbreviate `y ~ .`
+
+
+Exercise: Try several alternative specifications: log hourly wage, interactions between `ptft` and working hours, etc...
+How are the coefficients interpreted?
+
+# Prediction 
+
+Finally, we can make a prediction for new data using our preferred model. Let us assume, we have an individual with 
+
+```{r}
+
+model_final <- lm(hourly_wage ~ hh_size + work_hrs_week + ptft + occup_code , data = atus)
+
+
+new_data <- data.frame(hh_size = 3, work_hrs_week = 40, occup_code = "professional", ptft = "FT")
+
+predicted_hourly_wage <- predict(model_final, newdata = new_data)
+
+```
+
+
