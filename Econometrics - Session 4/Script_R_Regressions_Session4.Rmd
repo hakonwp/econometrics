@@ -41,7 +41,8 @@ hollywood$openingtheaters2 <- (hollywood$openingtheaters)^2
 
 3. Scatterplots and Correlations
 ```{r}
-ggp <- ggpairs(hollywood[,c("openinggross", "budget", "openingtheaters", "criticsopinion")])
+#ggp <- ggpairs(hollywood[,c("openinggross", "budget", "openingtheaters", "criticsopinion", "sumhol", "criseq")])
+ggp <- ggpairs(hollywood[,c("opensummer", "openholiday", "sumhol", "criticsopinion", "sequeldummy", "criseq")])
 print(ggp, progress = FALSE)
 ```
 
@@ -61,7 +62,7 @@ stargazer(model1, model2, model3, model4, model_wo_dummy, type = 'text')
 4. Estimate and Assess New Models
 ```{r}
 model4 <- lm(openinggross ~ budget + sequel + criticsopinion + openingtheaters, data = hollywood) #w/o  knownstory + opensummer + openholiday + openchristmas + comedy
-model5 <- lm(openinggross ~ budget + sequel + criticsopinion + openingtheaters + sumhol + criseq + openingtheaters2, data = hollywood) #w/o  knownstory + opensummer + openholiday + openchristmas + comedy
+model5 <- lm(openinggross ~ budget + criticsopinion + openingtheaters + sumhol + criseq + openingtheaters2, data = hollywood) #w/o  knownstory + opensummer + openholiday + openchristmas + comedy
 
 
 stargazer(model4, model5, type = 'text')
