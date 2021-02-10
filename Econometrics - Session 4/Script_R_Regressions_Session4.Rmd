@@ -1,0 +1,87 @@
+---
+title: "Econometrics Session4 -- R Regressions"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+1. Prep work
+```{r}
+library(stargazer)
+library(dplyr)
+library(GGally)
+library(ggplot2)
+```
+
+```{r}
+hollywood <- read.csv("hollywood.csv")
+```
+
+```{r}
+#View(hollywood)
+```
+
+2.Constructing some Variables 
+Converting seuquel to dummy variable, `sequeldummy`
+Construct the return ratio, `roi`: (openinggross/budget)
+interaction term opensummer x openholiday, `sumhol`: (opensummer*openholiday)
+interaction term criticsopinion x sequel, `criseq`: (criticsopinion*sequeldummy)
+polynomial of degree 2 for openingtheaters, `openingtheaters2`: (openingtheaters^2)
+
+```{r}
+hollywood$sequeldummy <- as.numeric(hollywood$sequel=="yes")
+hollywood$roi <- (hollywood$openinggross/hollywood$budget)
+hollywood$sumhol <- (hollywood$opensummer*hollywood$openholiday)
+hollywood$criseq <- (hollywood$criticsopinion*hollywood$sequeldummy)
+hollywood$openingtheaters2 <- (hollywood$openingtheaters)^2
+
+#summary(hollywood$roi)
+```
+
+3. Scatterplots and Correlations
+```{r}
+ggp <- ggpairs(hollywood[,c("openinggross", "budget", "openingtheaters", "criticsopinion")])
+print(ggp, progress = FALSE)
+```
+
+4. Estimate and Assess Model
+```{r}
+model1 <- lm(openinggross ~ budget + openingtheaters + knownstory + sequeldummy + opensummer + openholiday + openchristmas + criticsopinion + comedy, data = hollywood)
+model2 <- lm(openinggross ~ budget + openingtheaters + knownstory + opensummer + openholiday + openchristmas + criticsopinion + comedy, data = hollywood) #w/o sequel
+model3 <- lm(openinggross ~ budget + openingtheaters + knownstory + sequeldummy + opensummer + openholiday + openchristmas + comedy, data = hollywood) #w/o criticsopinion
+model4 <- lm(openinggross ~ budget + openingtheaters + opensummer + openholiday + openchristmas + comedy, data = hollywood) #w/o sequel or criticsopinion or knownstory
+model4 <- lm(openinggross ~ budget + sequeldummy + criticsopinion + openingtheaters, data = hollywood) #w/o  knownstory + opensummer + openholiday + openchristmas + comedy
+model_wo_dummy <- lm(openinggross ~ budget + sequel + criticsopinion + openingtheaters, data = hollywood) #w/o  knownstory + opensummer + openholiday + openchristmas + comedy
+
+stargazer(model1, model2, model3, model4, model_wo_dummy, type = 'text')
+```
+
+
+4. Estimate and Assess New Models
+```{r}
+model4 <- lm(openinggross ~ budget + sequel + criticsopinion + openingtheaters, data = hollywood) #w/o  knownstory + opensummer + openholiday + openchristmas + comedy
+model5 <- lm(openinggross ~ budget + sequel + criticsopinion + openingtheaters + sumhol + criseq + openingtheaters2, data = hollywood) #w/o  knownstory + opensummer + openholiday + openchristmas + comedy
+
+
+stargazer(model4, model5, type = 'text')
+```
+
+# Prediction 
+
+Finally, we can make a prediction for new data using our preferred model. Let us assume, we have an individual with 
+
+```{r}
+#no critics opinion
+model_newmovie <- lm(openinggross ~ budget + openingtheaters + knownstory + sequeldummy + opensummer + openholiday + openchristmas + comedy, data = hollywood)
+
+newmovie_data <- data.frame(budget = 40000000, openingtheaters = 2800, knownstory = 1, sequeldummy = 0, opensummer = 1, openholiday = 0, openchristmas = 0, comedy = 1)
+
+predicted_gross <- predict(model_newmovie, newdata = newmovie_data)
+
+predicted_gross/1000000
+
+#how to do confidence interval??
+```
+
+

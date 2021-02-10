@@ -1,0 +1,909 @@
+
+---
+title: "Session 3 - Linear and Non-linear Regression - Econometrics 2021"
+author: Jan Nimczik
+output: beamer_presentation
+
+---
+
+```{r, include=FALSE}
+library(stargazer)
+library(dplyr)
+library(GGally)
+library(ggplot2)
+```
+
+
+
+
+
+# Important Concepts
+
+\begin{itemize}
+  \item Population Regression Equation
+  \item Ordinary Least Squares Estimator
+  \item Properties of OLS
+  \item OLS Assumptions
+\end{itemize}
+
+
+
+# Population Regression Equation
+
+$$ Y_i = \beta_0 + \beta_1X_i + u_i, \hspace{2em} i=1,...,n $$
+
+\begin{itemize}
+\item We have $n$ observations, $(X_i, Y_i), i=1,...,n.$
+\item $X$ is the \textit{independent/explanatory variable} or \textit{regressor}.
+\item $Y$ is the \textit{dependent variable}.
+
+\item $\beta_0=$ \textit{intercept}
+\item $\beta_1=$ \textit{slope}
+\item $u_i=$ regression \textit{error}
+\end{itemize}
+
+
+
+# OLS Estimator
+
+\begin{itemize}
+\item estimate $\beta_0$ and $\beta_1$ from data
+\item The OLS estimator solves:
+\end{itemize}
+
+\begin{align*}
+\hat{\beta_0}, \hat{\beta_1} &= \min_{b_0, b_1}\sum\limits_{i=1}^n[Y_i - (b_0 + b_1X_i)]^2 \\
+&= (X'X)^{-1} X'y
+\end{align*}
+
+
+
+# OLS Properties
+
+Unbiasedness: $$E[\hat{\beta_1}] = \beta_1$$
+
+Asymptotic Normality: $$\hat{\beta}_1 \sim N\Big( \beta_1, \frac{\sigma^2_v}{n(\sigma^2_x)^2}\Big), \mbox{  where  } v_i=(X_i-\mu_x)u_i$$
+
+
+
+# OLS Assumptions
+
+\scriptsize
+
+\begin{enumerate}
+\item The conditional distribution of $u$ given $X$ has mean zero, that is, $\mathbb{E}(u|X = x) = 0$.
+	\begin{itemize}
+	\item This implies that $\hat{\beta}_1$ is unbiased.
+	\end{itemize}
+
+\item $(X_i, Y_i), i=1,...,n.$ are i.i.d.
+
+	\begin{itemize}
+	\item This is true if $(X,Y)$ are collected by simple random sampling.
+	\item This delivers the sampling distribution of  $\hat{\beta}_0$ and  $\hat{\beta}_1$.
+	\end{itemize}
+
+\item Large outliers in $X$ and/or $Y$ are rare.
+
+	\begin{itemize}
+%	\item Technically, $X$ and $Y$ have finite fourth moments.
+	\item Outliers can result in meaningless values of  $\hat{\beta}_1$.
+	\end{itemize}
+	
+\item The variance of the conditional distribution of $u$ given $X$ does not depend on $X$.
+	\begin{itemize}
+	\item This implies that your estimates will have a standard normal distribution (in large samples).
+	\item You need this to make valid statistical inference from your coefficient estimates (e.g. is $\hat{\beta}_1$ statistically significant?).
+	\end{itemize}
+
+\item There is no perfect multicollinearity.
+\end{enumerate}
+
+
+
+# 
+
+\centering
+
+Now let's practice interpreting linear regression for descriptives.
+
+
+# Gender Pay Gap
+
+Recall our brief discussion on the gender pay gap:
+\begin{itemize}
+  \item On average, in Germany women earn 21\% less than men.
+  \item But you might want to compare apples to apples.
+  \item Compared to similar men in similar jobs, women still earn only 88 cents on the dollar.
+  \item Much of the remaining wage gap can be explained by fewer hours worked and less stable work histories.
+  \item But not everything: There might still be some discrimination!
+\end{itemize}
+
+Now let's focus on a particularly interesting part of the economy: 
+\centering
+The \textbf{Gig Economy}
+
+
+# Data
+
+Recall our checklist. The first 4 points refer to getting an understanding of the data.
+
+Here, we do not have the actual data. But we look at the results based on the work histories of more than 1 Million Uber Drivers.
+
+Cody Cook, Rebecca Diamond, Jonathan V. Hall, John A. List, and Paul Oyer (2020). \textit{The Gender Earnings Gap in the Gig Economy: Evidence from over a Million Rideshare Drivers}. Review of Economic Studies (forthcoming)
+
+
+# Data 
+
+![](../../Graphs/uber_summary.png){ width=90% }
+
+
+# Data 
+
+![](../../Graphs/uber_gap.png){ width=90% }
+
+
+# Population Regression Equation
+
+$$\log(Earnings_{it}) = \beta_0 + \beta_1 Male_i + \rho X_{it} + \epsilon_i$$
+
+# Log-Level Regression model
+
+$$\log(Y_i) = \beta_0 + \beta_1 X_i + u_i$$
+
+Interpretation of "log-level" coefficient:
+"If we increase $X$ by one unit, we expect $Y$ to change by $\beta_1$ percent."
+
+
+# Level-Log Regression model
+
+$$salary_i = \beta_0 + \beta_1 log(experience)_i + u_i $$
+
+
+![](../../Graphs/mod6_salary.png){ width=60% }
+
+
+Interpretation of ``level-log" coefficient:
+``If we increase $X$ by one percent, we expect y to change by $\frac{\beta_1}{100}$ units of $Y$."
+
+# Log-Log Regression model
+
+$$log(salary)_i = \beta_0 + \beta_1 log(experience)_i + u_i$$
+
+![](../../Graphs/mod7_salary.png){ width=60% }
+
+Interpretation of ``log-log" coefficient:
+``If we increase $X$ by one percent, we expect $Y$ to change by $\beta_1$ percent."
+
+# Now our Uber drivers: Interpret!
+
+![](../../Graphs/uber_table2.png){ width=90% }
+
+
+# Now our Uber drivers: Interpret!
+
+![](../../Graphs/uber_table4.png){ width=90% }
+
+
+
+# Now it's your turn
+
+Meet in breakout rooms and discuss the following two tables:
+\begin{itemize}
+  \item Returns to driving time and location
+  \item Returns to experience
+\end{itemize}
+
+Discuss the following questions:
+\begin{itemize}
+  \item Do men or women drive in locations with higher earnings? How can you see this?
+  \item Do men or women drive in locations with higher crime?
+  \item What happens to the gender wage gap in Column (7) of Table 5? Why?
+  \item Which models have the highest $R^2$? Why?
+\end{itemize}
+
+Then, we'll have a quiz on menti.com...
+
+
+
+# Now our Uber drivers: Interpret!
+
+![](../../Graphs/uber_table5.png){ width=90% }
+
+
+
+# Now our Uber drivers: Interpret!
+
+![](../../Graphs/uber_table6.png){ width=90% }
+
+
+
+# Model Specification Checklist for Description and Prediction
+
+\scriptsize
+
+\begin{enumerate}
+\item (literally) Look at (a subsample of) your raw data. Understand the basic data structure.
+\item Calculate summary statistics (no. obs., mean, SD, range, etc.)
+\item Visually inspect the data (e.g. scatter plots). Do these make sense? What type of relationship do the $X$'s have with the $Y$?
+\item Calculate correlations. Do these make sense? Make sure you don't include 2 variables whose correlation coefficient is $>|0.85|$ (avoid multicollinearity.)
+\item Write down a sensible model, based on economic intuition.
+\item Estimate and assess this model.
+	\begin{enumerate}
+	\scriptsize
+	\item Does the model make sense? (sign and significance of variables)
+	\item Look at the Adjusted R2: does this model do a good job of fitting the data?
+	\item (potentially) Residual plots: heteroscedasticity, normality
+	\end{enumerate}
+\item Compare this model to other candidate models. Settle on a final model that best explains the data.
+\item Make predictions based on the best model.
+\end{enumerate}
+
+
+# 1. Look at the data
+
+\scriptsize
+
+```{r}
+data <- read.csv("caschool_adapted.csv") %>%
+  mutate(str = enrl_tot/ teachers)
+head(data)
+
+```
+
+# 2. Summary Statistics
+
+\scriptsize
+
+```{r}
+summary(data)
+```
+
+
+
+# 3. Scatterplots and 4. Correlations
+
+\scriptsize 
+
+```{r}
+ggpairs(data[,c("testscr", "str", "el_pct", "meal_pct", "calw_pct", "avginc")])
+
+```
+
+
+# 5. Model
+
+$$ testscr_i=\beta_0 + \beta_1 str_i + \beta_2 el_i + \beta_3 meal_i + \beta_4 calw _i+ \beta_5 avginc_i + u_i $$
+
+
+# 6. Estimate and Assess Model
+
+\scriptsize
+
+
+```{r}
+lm <- lm(testscr ~ str + el_pct + meal_pct + calw_pct + avginc, data = data)
+summary(lm)
+
+```
+
+
+# Regression Diagnostics
+
+- Does the model make sense? (check sign and significance of variables)
+- Look at the adjusted $R^2$
+- Residual Analysis
+
+# Residual Analysis
+
+```{r}
+plot(lm, which=1)
+```
+
+
+# Residual Analysis (cont.)
+
+```{r}
+plot(lm, which = 2)
+```
+
+# Residual Analysis (cont.)
+
+```{r}
+plot(lm, which = 3)
+```
+
+
+# 7. Alternative Models
+
+\scriptsize
+
+Conduct the analysis for various model specifications.
+
+```{r, fig.width=5, fig.asp=0.62}
+lm2 <- lm(testscr ~ str , data = data)
+lm3 <- lm(testscr ~ str + avginc, data = data)
+stargazer(lm2, lm3, lm, type = 'text')
+```
+
+
+# 8. Predictions
+
+Finally, we can use our preferred model to make out-of-sample predictions for data where we do not know the outcome (but the $X$ variables). 
+
+Examples:
+
+- choose a school district based on the characteristics
+- choose a location for a new store (your homework 1)
+- ...
+
+# Predictions
+
+To see how this works, consider our very simple model `lm2`
+
+$$ testscr_i=\beta_0 + \beta_1 str_i + u_i $$
+
+Imagine, you want to predict the testscore for a school district where `str` equals 20.
+
+\pause
+
+$$ \widehat{testscr}| str=20 = 698.9 - 2.28*20= 653.34 $$
+
+# Predictions in R
+
+```{r}
+new_data <- data.frame(str = 20)
+
+predict(lm2, new_data)
+```
+
+
+
+# Uncertainty around predictions
+
+\scriptsize
+
+Of course, I'm not 100\% certain about this prediction:
+
+- compute an interval into which the prediction falls with a given probability (most often 95%)
+- two types: Prediction Interval and Confidence Interval
+- based on the **standard error of the regression (SER)**
+
+\scriptsize
+     - measures the magnitude of a typical regression residual in the units of $Y$
+         $$SER=\sqrt{\frac{1}{n-k-1}\sum_{i=1}^n\hat{u}_i^2}$$
+     - Approximately 95\% of the observations should fall within plus/minus 1.96$\times$standard error of the regression from the regression line
+
+
+
+# 1. How sure are you that $y$ will take on a \textit{particular} value for a given value of $x$?
+
+
+\scriptsize
+
+Standard error of the prediction:
+$$ s^{ind}=SER*\sqrt{1 + \frac{1}{n} + \frac{(X_0-\bar{X})^2}{\sum_{i=1}^{n}(X_i-\bar{X})^2}}$$
+
+$$ s^{ind}_{20}=18.6 \simeq 18.58=SER $$
+
+Prediction interval:
+$$\widehat{testscr}| str=20\in [653.34-1.96*18.6, 653.34+1.96*18.6]=[616.9, 689.9]$$
+
+I'm 95\% confident that the test score in a district with `str`=20 will be between [616.9, 689.9]
+
+
+```{r}
+predict(lm2, new_data, interval = "predict")
+```
+
+
+
+# 2. How sure are you that the $y$ will take on this \textit{mean} value for a given value of $x$?
+
+\scriptsize
+
+
+$$ s^{mean}=SER*\sqrt{\frac{1}{n} + \frac{(X_0-\bar{X})^2}{\sum_{i=1}^{n}(X_i-\bar{X})^2}}$$
+
+$$s^{mean}_{20}=0.92 \simeq \frac{18.58}{\sqrt{420}}=\frac{SER}{\sqrt{n}} %=0.9066$$
+
+Confidence interval:
+$$\widehat{testscr} | str=20\in [653.34-1.96*0.92, 653.34+1.96*0.92]=[651.5, 655.1]$$
+
+I'm 95\% confident that the average test score in districts with str=20  will be between [651.5, 655.1]
+
+```{r}
+predict(lm2, new_data, interval = "confidence")
+
+```
+
+
+
+# Predictions based on a richer model
+
+\scriptsize
+
+Suppose I'm a parent who is considering whether to send my kid to a school in district A or district B in California. Which should I choose?
+
+Prediction model:
+$$ testscr_i=675.76 - 0.581str -0.208 el_i -0.366 meal_i -0.074calw_i+ 0.681avginc_i $$
+
+Predictions:
+$$
+\hat{testscr}_A=675.76 - 0.581\times 40 -0.208\times20 -0.366\times50 -0.074\times30+ 0.681 \times20
+= 641.5
+$$
+
+$$
+\hat{testscr}_B=675.76 - 0.581\times 10 -0.208\times6 -0.366\times20 -0.074\times8+ 0.681 \times50
+= 694.8
+$$
+
+
+
+# Predictions (cont'd.)
+
+\scriptsize
+
+Of course, I'm not 100\% certain about this prediction:
+
+95\% Prediction interval
+
+District A: $$ [641.5-1.96*9.77, 641.5+1.96*9.77]=[622.35, 660.65]$$
+District B: $$[694.8-1.96*8.94, 694.8+1.96*8.94]=[677.28, 712.32]$$
+
+
+95\% Confidence interval
+
+District A: $$ [641.5-1.96*4.92, 641.5+1.96*4.92]=[631.86, 651.14]$$
+District B: $$[694.8-1.96*2.95, 694.8+1.96*2.95]=[689.0, 700.58]$$
+
+
+
+# Questions so far?
+
+You can practice this in your homework #1 and also in a practice session on Wednesday.
+
+
+
+
+# Binary dependent variables: What's different?
+
+
+So far the dependent variable ($Y$) has been continuous:
+\begin{itemize}
+\item district-wide average test score
+\item salary
+\end{itemize}
+
+What if $Y$ is binary?
+\begin{itemize}
+\item $Y =$ get into a MIM program, or not; $X =$ undergraduate grades, GMAT scores, demographic variables
+\item $Y =$ a loan is repaid, or not; $X =$ employment status, assets, income
+\item $Y =$ a sale is made, or not; $X =$ industry, previous relationship with the firm, geography
+\end{itemize}
+
+
+# Now: 
+
+How to make descriptive regressions or predictions when you have a binary (0/1) dependent variable:
+
+\begin{enumerate}
+\item Linear Probability Models
+\item Non-Linear Models for Prediction
+	\begin{itemize}
+	\item Probit
+	\item Logit
+	\end{itemize}
+\end{enumerate}
+
+
+# Linear Probability Model (LPM)
+
+A natural starting point is to estimate a linear regression model using OLS with a single regressor:
+$$Y_i=\beta_0 + \beta_1X_i + u_i $$
+
+\begin{itemize}
+\item In the LPM, the predicted value of $Y$ is interpreted as the predicted probability that $Y=1$; $\beta_1$ is the change in that predicted probability for a unit change in $X$.
+\pause
+\item It is called the ``linear probability model" because
+
+$$Pr(Y=1|X)=\beta_0 + \beta_1X_i  $$
+
+\item $\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X$ the predicted probability that $Y= 1$, given $X$.
+\pause
+\item How would you interpret $\beta_1$?
+\item $\beta_1$ is the change in probability that $Y=1$ for a unit change in $x$; i.e. $\beta_1\times 100$ represents the \textit{percentage point} change in the probability that $Y=1$ for a one unit change in $x$.
+\end{itemize}
+
+
+
+# Example: Mortgage Denial and Race
+
+\begin{itemize}
+\item Individual applications for single-family mortgages made in 1990 in the greater Boston area
+\item 2380 observations, collected under Home Mortgage Disclosure Act (HMDA)
+\end{itemize}
+\pause
+Variables:
+\begin{itemize}
+\item Dependent variable: Is the mortgage denied or accepted?
+\item Independent variables:
+	\begin{itemize}
+	\item ratio of debt payments to income (P/I ratio)
+	\end{itemize}
+\end{itemize}
+
+
+# Read Data
+
+\scriptsize
+
+```{r}
+
+hmda <- read.csv("hmda.csv")
+
+str(hmda)
+
+```
+
+# Explore data
+
+\scriptsize
+
+```{r} 
+# View(hmda)
+summary(hmda)
+```
+
+
+# Create dummy variable
+
+```{r}
+hmda$dendummy <- as.numeric(hmda$deny=="yes")
+
+```
+
+
+# Summary stats (only for numeric)
+
+\scriptsize
+
+```{r}
+sapply(hmda[, c("dendummy", "pirat", "hirat", "unemp")], mean)
+sapply(hmda[, c("dendummy", "pirat", "hirat", "unemp")], sd)
+cor(hmda[,c("dendummy", "pirat", "hirat", "unemp")])
+
+```
+
+# Estimate Linear Probability Model
+
+\scriptsize 
+
+```{r}
+lpm1 <- lm(dendummy ~ pirat, data = hmda)
+
+summary(lpm1)
+```
+
+
+
+
+
+
+# Prediction using LPM
+
+$$deny = -0.0799+ 0.604*pirat$$
+
+What is the probability of a mortage application being denied when $pirat=.0.3$?
+
+$$Pr(deny=1|P/I\,ratio=0.3) = -0.0799+ 0.604*0.3 =    0.10$$
+
+
+
+# Uncertainty around prediction
+
+\scriptsize 
+
+Prediction interval $= [-0.52, 0.73]$
+```{r}
+# create data.frame with pirat=0.3
+outsample1<-data.frame(pirat=.3)
+
+#predict for 1 row (one observations, the first in the subsetted data)
+predict(lpm1, outsample1, level=0.95, interval="predict") 
+
+###-- confidence interval
+predict(lpm1, outsample1, level=0.95, interval="confidence")
+```
+
+
+Notice anything weird about this?
+
+# Plot linear regression model
+
+```{r, fig.width = 5, fig.asp = .62}
+plot(hmda$pirat, hmda$dendummy,
+     xlim=c(0,3),
+     ylim=c(-0.2, 1.2),
+     ylab="Denied", xlab="P/I ratio"  )
+abline(lm(dendummy~ pirat, data=hmda), col="blue")
+
+```
+
+
+# LPM
+
+Mortgage denial v. ratio of debt payments to income
+(P/I ratio) in a \textit{subset} of the HMDA data set (n = 127)
+
+
+![](../../Graphs/nonlinear_fig3.png){ width=90% }
+
+
+
+
+
+
+# Pros and Cons of LPM
+
+Advantages:
+\begin{itemize}
+\item simple to estimate and to interpret.
+\item inference is the same as for multiple regression.
+\end{itemize}
+\pause
+Disadvantages:
+\begin{itemize}
+\item LPM predicted probabilities can be $<0$ or $>1$.
+\item A LPM says that the change in the predicted probability for a given change in $X$ is the same for all values of $X$, but that doesn't make sense.
+
+\end{itemize}
+
+These disadvantages can be solved by using a nonlinear probability model.
+
+
+# Probit and Logit Regression
+
+Nonlinear functional form for the probability.
+
+![](../../Graphs/nonlinear_fig4.png){ width=90% }
+
+
+
+
+
+# Logit Model
+
+Logit regression models the probability that $Y=1$ using the cumulative \textit{logistical} distribution function, $F(z)$, evaluated at $z = \beta_0 + \beta_1X$:
+\pause
+\begin{align*}
+Pr(Y = 1|X)&=F(\beta_0+\beta_1X)\\
+       &=\frac{1}{1+e^{-(\beta_0+\beta_1X)}}
+\end{align*}
+
+
+
+# Logit (Logistical Regression) Example
+
+\begin{itemize}
+\item Suppose $\beta_0=-2, \beta_1=3$,
+\item Notice that the z-value varies with $X$, so you need to fix the values of $X$ in order to interpret the coefficients.
+\pause
+\item Suppose $X=0.4$.
+\item $Pr(Y = 1|X=.4) = F(-2 + 3\times.4) = \frac{1}{1+e^{-(-2+3\times0.4)}}=0.31$
+\item Notice that the coefficient $\beta_0$ and $\beta_1$ are very hard to interpret on their own: can't say much beyond their sign and significance.
+\end{itemize}
+
+
+# Back to the HMDA example: Logistical Regression
+
+\scriptsize
+
+```{r}
+log1 <- glm(deny ~ pirat, family = binomial(link = "logit"), data = hmda)
+summary(log1)
+```
+
+Smaller ``deviance" and smaller AIC indicate ``better fit".
+
+
+# Prediction based on the logit model
+
+$$Pr(deny = 1|pirat=0.3) = F(-4.028+5.885*0.3)=0.094$$
+
+```{r}
+predict(log1,outsample1, type="response")
+```
+
+
+
+
+
+# Probit Model
+
+Probit regression models the probability that $Y=1$ using the cumulative standard normal distribution function, $\Phi(z)$, evaluated at $z = \beta_0 + \beta_1X$.
+\pause
+
+The probit regression model is,
+
+$$Pr(Y = 1|X) = \Phi(\beta_0+\beta_1X)$$
+
+where $\Phi$ is the cumulative \textit{normal} distribution function and $z = \beta_0+\beta_1X$ is the z-value or z-index of the probit model.
+
+# Probit Example
+
+\begin{itemize}
+\item Suppose $\beta_0=-2, \beta_1=3$,
+\item Suppose $X=.4$.
+\item $Pr(Y = 1|X=.4) = \Phi(-2 + 3\times.4) = \Phi(-0.8)$
+\item $Pr(Y = 1|X=.4)=$ area under the standard normal density to the left of $z=-0.8$.
+\end{itemize}
+
+
+
+
+# Normal Distribution
+
+![](../../Graphs/normal.png){width=90% }
+
+$$Pr(z \leq -0.8) = .2119$$
+
+
+
+
+# Back to the HMDA example: Probit Regression
+
+\scriptsize 
+
+```{r}
+prob1 <- glm(dendummy ~ pirat, family = binomial(link = "probit"), data = hmda)
+summary(prob1)
+```
+
+
+# Prediction based on the Probit model
+
+
+
+```{r}
+
+##-- predictions, use outsample1 again
+predict(prob1,outsample1, type="response")
+```
+
+
+
+
+$$Pr(deny = 1|pirat=0.3) = \phi(-2.194+2.968*0.3)=0.096$$
+
+
+# Multiple control variables
+
+\scriptsize
+
+In both, logistic regression and probit models, you can include more than one $X$ variable 
+
+
+```{r}
+log2 <- glm(deny ~ pirat + afam, family = binomial(link = "logit"), data = hmda)
+summary(log2)
+```
+
+
+# Multiple control variables
+
+\scriptsize
+
+```{r}
+prob2 <- glm(dendummy ~ pirat + afam, family = binomial(link = "probit"), data = hmda)
+summary(prob2)
+
+```
+
+# Predictions based on multiple $X$ variables
+
+```{r}
+outsample2<-data.frame(pirat = c(0.8, 0.8), 
+                       afam = c("yes", "no"))
+predict(log2, outsample2, type = "response")
+predict(prob2,outsample2, type="response")
+```
+
+
+
+
+# Logit vs. Probit
+
+Because logit and probit use different probability functions, the coefficients ($\beta$'s) are different in logit and probit.
+
+Why bother with logit if you have probit?
+\begin{itemize}
+\item The main reason is historical:  logit is computationally faster and easier, but that doesn't matter nowadays.
+\item Logit coefficients can be translated into odds ratios.
+\end{itemize}
+
+
+
+
+# Odds ratio
+
+\scriptsize
+
+```{r}
+summary(log2)
+```
+
+# Odds ratio
+
+The odds ratio is just $\exp(b)$, where $b$ is the (respective) coefficient estimate from your logit regression, i.e. $3.57=\exp(1.2728)$. Interpretation of the odds ratio: keeping the P/I ratio fixed, an African American is 3.57 times more likely to be denied a mortgage.
+
+
+```{r}
+exp(coef(log2))
+```
+
+#
+
+In practice, logit and probit are very similar --- since empirical results typically don't hinge on the logit/probit choice, both tend to be used in practice.
+
+![](../../Graphs/nonlinear_fig5.png){width=90% }
+
+
+# Summary: Binary Dependent Variables
+
+\begin{enumerate}
+\item \textbf{Linear Probability Model}: standard OLS regression, with binary dependent variable.
+\item  \textbf{Probit and logit}: non-linear regression models, which allow for marginal effects to \textit{change} with $X$, and \textit{bounds} predicted values between $0$ and $1$.
+\end{enumerate}
+
+
+
+
+# Marginal Effects  
+
+Note: This is an additional note that you won't need for the assignment (or exam). 
+
+We have seen that the coefficients of logit and probit cannot be interpreted directly. Therefore, we need to calculate the *marginal effects*.
+
+Marginal effects are also called instantaneous rates of change: 
+It is basically the partial effect (partial derivative) of a variable, keeping all other variables constant. 
+
+The marginal effects in linear models are trivial, it's simply the coefficients. 
+In Logit and probit, however, the magnitude of the marginal effect depends on the values of the other variables and their coefficients (think about taking the partial derivative wrt to one variable). 
+
+# Marginal Effect at the mean
+
+A simple way to report marginal effects is to calculate them "at the mean", i.e., all other variables equal to their means.
+
+```{r}
+# marginal effects in the Linear Probability Model are just the coefficients: 
+coef(lpm1)
+
+```
+
+# Marginal Effects for logit
+
+\scriptsize
+```{r, warning=FALSE}
+#install.packages("mfx")  
+#install.packages("betareg")
+library(betareg)
+library(mfx)
+
+
+logitmfx(dendummy ~ pirat + afam, data=hmda)
+
+## Odds ratio can also be easily done with package mfx for logit models
+logitor(dendummy ~ pirat + afam, data=hmda)
+```
+
+# Marginal Effects for probit
+
+\scriptsize
+
+```{r}
+probitmfx(dendummy ~ pirat + afam, data=hmda)
+```
+
+
