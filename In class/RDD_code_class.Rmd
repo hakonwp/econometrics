@@ -1,0 +1,121 @@
+---
+title: "RDD Script"
+author: Jan Nimczik
+output: html_notebook
+---
+# Empricial Analysis
+
+Let's get some data on mortality and age. For ages 19 to 23 we have data on deaths per 100,000 persons per year by month of age and differentiated by different causes of death.
+
+
+```{r, results=FALSE, message=FALSE}
+library("tidyverse")
+library("haven")
+library("rlang")
+library("broom")
+library("lmtest")
+library("sandwich")
+
+mlda <- read.csv("mlda_data.csv") 
+summary(mlda)
+
+```
+
+
+# Data
+
+- `agecell` Average age in the particular age cell
+- `all` total number of deaths in age cell
+- `internal` number of deaths with internal causes
+- `external` number of deaths with external causes
+- `mva` number of death due to motor vehicle accidents
+
+
+# Data Preparation
+
+- Define a variable `age` that is normalized to 0 at the cutoff
+- Add a variable `age = age^2`
+- Add an indicator variable for individuals over 21 years of age, `over21`. 
+
+```{r}
+mlda <- mutate(mlda,
+               age = agecell - 21,
+               age2 = age^2,
+               over21 = as.integer(agecell >= 21)) 
+
+```
+
+
+## Linear Model
+
+```{r, warning=FALSE, fig.asp=0.4}
+fit <- data.frame(all_fit = predict(lm(all~agecell+over21, data=mlda)), agecell = mlda$agecell)
+
+ggplot(mlda, aes(x=agecell, y=all)) + geom_point() +
+  geom_vline(xintercept = 21) +
+  geom_line(data=fit, aes(y=all_fit, x = agecell), color = 'red') +
+  labs(title = "All causes", y = "Mortality rate (per 100,000)", 
+       x = "Age")
+
+
+model1 <- lm(all ~ age  + over21, data = mlda )
+summary(model1)
+
+```
+
+
+## Polynomial model
+
+```{r, fig.asp=0.4}
+ggplot(mlda, aes(x=agecell, y=all)) + geom_point()+
+  geom_smooth(mapping = aes(group = over21), se = FALSE, method = "lm",
+              formula = y ~ poly(x, 2)) +
+  geom_smooth(mapping = aes(group = over21), se = FALSE, method = "lm",
+              formula = y ~ poly(x, 8), color = "black")+
+  geom_vline(xintercept = 21) +
+  labs(title= "Motor Vehicle Accidents", y = "Mortality rate (per 100,000)"
+       , x = "Age")
+
+
+model2 <- lm(all ~ age*over21 + age2*over21 , data = mlda)
+summary(model2)
+```
+
+
+
+
+## Extra Analyses
+
+The Regression Discontinuity Design has the advantage that we can show nice and intuitive graphs. Also, we can use some extra analyses to make our causal effect more plausible.
+
+### Differentiate by causes of death
+
+Our data allows to separate between different causes of death. Let's look at two different causes: 
+
+- `mva` Motor vehicle accindents
+- `internal` Internal causes
+
+Questions:
+
+1. What effects do you expect for MLDA on these two outcomes?
+2. Plot a graph for each of these outcomes and check whether the results align with your expectations.
+3. Run regressions for the RDD for each of these two outcomes. Do you find significant treatment effects?
+
+```{r, fig.asp=0.4}
+ggplot(mlda, aes(x=agecell, y=mva)) + geom_point() +
+  geom_smooth(mapping = aes(group = over21), se = FALSE, method = "lm",
+              formula = y ~ poly(x, 2)) +
+  geom_vline(xintercept = 21) +
+  labs(title= "Motor Vehicle Accidents", y = "mva"
+       , x = "Age")
+
+ggplot(mlda, aes(x=agecell, y=internal)) + geom_point() +
+  geom_smooth(mapping = aes(group = over21), se = FALSE, method = "lm",
+              formula = y ~ poly(x, 1)) +
+  geom_vline(xintercept = 21) +
+  labs(title= "Motor Vehicle Accidents", y = "internal"
+       , x = "Age")
+
+mva_causes <- lm(mva ~ age*over21 + age2*over21 , data = mlda)
+summary(mva_causes)
+```

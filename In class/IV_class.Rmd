@@ -1,0 +1,204 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Load data
+
+```{r, results=FALSE, message=FALSE}
+
+
+library(AER)
+library(stargazer)
+library(ivpack)
+library(dplyr)
+
+```
+
+
+# Generate new variables
+
+```{r}
+
+cigs = read.csv("cigs_data.csv")
+
+cigs <- mutate(cigs,
+               #deflate by CPI to get real prices
+               rprice = price / cpi,
+               rincome = (income/population)/cpi,
+               #log variables
+               lprice = log(rprice),
+               lquant = log(packs),
+               lincome = log(rincome))
+```
+
+
+
+# Summary statistics
+```{r}
+stargazer(cigs, type="text", median=TRUE,
+          digits=2, title="Cigarette data 1995")
+```
+
+# Estimate OLS
+
+```{r, warning=FALSE}
+ols <- lm(lquant ~ lprice, data = cigs)
+stargazer(ols,
+          title="OLS Regression", type = 'text', df = FALSE, digits = 5)
+```
+
+
+
+# IV regression - First Stage
+
+Regress $X$ on $Z$ (and any other exogenous variables $W$ if we had them)
+
+```{r, warning=FALSE}
+cigs <- mutate(cigs, tdiff = (taxs-tax)/cpi)
+
+first1 <- lm(lprice ~ tdiff, data = cigs) 
+stargazer(first1,  
+          title="First-stage Regression", type="text", 
+          df=FALSE, digits=5)
+```
+
+# IV regression - Second Stage
+
+Manually run the second stage using predicted values from first stage.
+```{r,warning=FALSE}
+cigs$lpricehat <- fitted(first1)
+
+second1 <- lm(lquant ~ lpricehat, data = cigs)
+stargazer(second1,  
+          title="Second Stage Regression", type="text", 
+          df=FALSE, digits=5)
+```
+
+
+```{r, warning=FALSE}
+iv1 = ivreg(lquant ~ lprice | tdiff , data = cigs)
+stargazer(iv1, 
+          title="IV Regression", type="text", 
+          df=FALSE, digits=5)
+```
+
+
+# Estimated demand equation
+
+$$\ln(Q_i^{cigarettes})=9.72-1.08\ln(P_i^{cigarettes})$$
+
+
+# General IV Model
+
+$$Y_i=\beta_0+\beta_1X_{1i}+...+\beta_kX_{ki}+\beta_{k+1}W_{1i}+...+\beta_{k+r}W_{ri}+u_i$$
+
+
+
+# General IV Model in our example
+
+We can add a control variable (`lincome`).
+
+Suppose now, that we have two instruments:
+- Cigarette tax `tdiff`
+- General tax in real terms (`tax/cpi`).
+
+
+# General IV Model in our example
+
+```{r, warning = FALSE}
+#Estimate the first stage with all exogenous regressors, i.e. control vars and instruments
+first2 = lm(lprice ~ lincome + tdiff + I(tax/cpi), data = cigs)
+stargazer(first2, 
+          title="First Stage with 3 Exogenous Regressors", 
+          type="text", df=FALSE, digits=5) 
+```
+
+# Use `ivreg` command
+
+```{r, warning=FALSE}
+iv2 = ivreg(lquant ~ lprice + lincome | lincome + tdiff + I(tax/cpi),
+            data = cigs)
+stargazer(iv2, 
+          title="IV Regression", type="text", 
+          df=FALSE, digits=5) 
+
+```
+
+
+#checking first IV relevance
+```{r}
+first3 = lm(lprice ~ tdiff, data = cigs)
+summary(first3)
+```
+
+
+# Your turn: Check instrument relevance for the second instrument `tax/cpi`
+#checking first IV relevance
+```{r}
+first4 = lm(lprice ~ I(tax/cpi), data = cigs)
+summary(first4)
+
+```
+
+# Better: Do this in the general model
+
+- $H_0: \beta_{tdiff}=\beta_{tax/cpi}=0$ in your first stage.
+- Decision rule: reject $H_0$ if $F>F^*$
+- Rule of thumb: conclude that you have relevant instruments if $F>10$
+- In practice: conclude that you have relevant instruments if $p<0.05$
+
+# Results:
+```{r}
+summary(iv2, diagnostics = TRUE)
+```
+
+
+
+Decision: reject $H_0$, conclude that you have relevant instruments.
+
+
+
+# Checking instrument exogeneity: Your task
+
+Manually compare how different the estimates are if you use the two instruments in separate iv regressions.
+\tiny
+```{r, warning=FALSE}
+
+```
+
+# Test of overidentifying restrictions (instrument exogeneity)
+
+A \textcolor{red}{test of overidentifying} restrictions makes this comparison in a statistically precise way.
+
+- Warning: You need at least two exogenous instruments to check for this here!
+- $H_0:$ All instruments are exogenous
+- Decision rule: reject $H_0$ if Sargan statistic $>$ critical value
+- In practice: reject $H_0$ that instruments are exogenous if $p<0.05$ (Note: this is bad news! You \textit{want} your instruments to be exogenous!)
+
+
+# Results
+
+```{r}
+```
+
+
+# Overview on all results
+
+```{r, warning=FALSE}
+stargazer(ols, first1, iv1, first2, iv2, 
+          title="All Regression Output", type="text", 
+          df=FALSE, digits=5) 
+
+```
+
+
+# Second Overview
+```{r, warning=FALSE}
+stargazer(ols, first1, iv1, iv2, 
+          title="IV Regression", type="text", 
+          df=FALSE, digits=5) 
+
+```
+
+
